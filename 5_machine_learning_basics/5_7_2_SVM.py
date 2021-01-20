@@ -7,8 +7,12 @@ import torch
 from sklearn.datasets import make_blobs
 from scipy.optimize import minimize
 
-X, y = make_blobs(n_samples=100, centers=2, n_features=2, random_state=1)
+from scipy.optimize import NonlinearConstraint
 
+
+N = 100
+X, y = make_blobs(n_samples=N, centers=2, n_features=2, random_state=1)
+y[y==0] = -1
 
 # plot examples
 y_plot = y.reshape(-1, 1)
@@ -28,25 +32,31 @@ def func(alphs, X, y):
     sum2 /= 2
     ret = sum1 - sum2
     print(ret)
-    return ret
+    return - ret
 
-res = minimize(func, alphs0, (X, y), tol=1e-2)
+bounds = [[0, np.inf] for _ in range(N)]
 
-xx = np.arange(-12, 1, 0.1)
+def con(alphs):
+    return alphs.T @ y
+# nlc = NonlinearConstraint(con, 0, 0)
+cons = {'type':'eq', 'fun': con}
 
-yy = np.arange(-7, 7, 0.1)
+# res = minimize(func, alphs0, (X, y), tol=1e-2, bounds=bounds)
+res = minimize(func, alphs0, (X, y), tol=1e-5, bounds=bounds, constraints=cons)
+# res = minimize(func, alphs0, (X, y), tol=1e-2)
 
 xx = np.arange(-12, 2, 0.1)
-
-xxx, yyy = np.meshgrid(xx, yy, sparse=True)
+yy = np.arange(-7, 7, 0.1)
 
 xxx, yyy = np.meshgrid(xx, yy, sparse=False)
 
 arr = np.zeros((140,140))
 
+alphs_opt = res.x.reshape((-1,1))
+
 for i in range(len(y)):
     for j in range(len(y)):
-        arr[i][j] = (res.x[i]*y[i]*X[i]@np.array([xxx[i][j], yyy[i][j]])) > 0.1
+        arr[i][j] = (alphs_opt[i]*y[i]*X[i]@np.array([xxx[i][j], yyy[i][j]])) > 0
 
 dataframe = pd.DataFrame(data=np.hstack([np.vstack((xxx.ravel(), yyy.ravel())).T, arr.ravel().reshape(-1, 1)]), columns=("x", "y", "label"))
 sn.FacetGrid(dataframe, hue="label", size=6).map(plt.scatter, 'x', 'y').add_legend()
