@@ -11,7 +11,7 @@ from scipy.optimize import NonlinearConstraint
 
 
 N = 100
-X, y = make_blobs(n_samples=N, centers=2, n_features=2, random_state=1)
+X, y = make_blobs(n_samples=N, centers=2, n_features=2, random_state=2)
 y[y==0] = -1
 
 # plot examples
@@ -41,8 +41,13 @@ def con(alphs):
 # nlc = NonlinearConstraint(con, 0, 0)
 cons = {'type':'eq', 'fun': con}
 
+options = {'maxiter': 10}
+
 # res = minimize(func, alphs0, (X, y), tol=1e-2, bounds=bounds)
-res = minimize(func, alphs0, (X, y), tol=1e-5, bounds=bounds, constraints=cons)
+# res = minimize(func, alphs0, (X, y), method='SLSQP', tol=1e-5, bounds=bounds, constraints=cons,
+#                options=options)
+res = minimize(func, alphs0, (X, y), tol=1e-5, bounds=bounds, constraints=cons,
+               options=options)
 # res = minimize(func, alphs0, (X, y), tol=1e-2)
 
 xx = np.arange(-12, 2, 0.1)
@@ -52,7 +57,7 @@ xxx, yyy = np.meshgrid(xx, yy, sparse=False)
 
 arr = np.zeros((140,140))
 
-alphs_opt = res.x.reshape((-1,1))
+alphs_opt = np.round(res.x.reshape((-1,1)), 2)
 
 for i in range(len(y)):
     for j in range(len(y)):
