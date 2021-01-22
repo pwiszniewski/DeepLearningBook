@@ -18,6 +18,8 @@ y[y==0] = -1
 y_plot = y.reshape(-1, 1)
 dataframe = pd.DataFrame(data=np.hstack([X,y_plot]), columns=("x", "y", "label"))
 sn.FacetGrid(dataframe, hue="label", size=6).map(plt.scatter, 'x', 'y').add_legend()
+plt.scatter(X[2][0], X[2][1], color='r')
+plt.scatter(X[44][0], X[44][1], color='r')
 plt.show()
 
 alphs0 = np.ones_like(y)
@@ -50,8 +52,9 @@ res = minimize(func, alphs0, (X, y), tol=1e-5, bounds=bounds, constraints=cons,
                options=options)
 # res = minimize(func, alphs0, (X, y), tol=1e-2)
 
-xx = np.arange(-12, 2, 0.1)
-yy = np.arange(-7, 7, 0.1)
+xx = np.arange(-7, 7, 0.1)
+yy = np.arange(-12, 2, 0.1)
+
 
 xxx, yyy = np.meshgrid(xx, yy, sparse=False)
 
@@ -59,13 +62,21 @@ arr = np.zeros((140,140))
 
 alphs_opt = np.round(res.x.reshape((-1,1)), 2)
 
+w = np.zeros((2,1))
+for i in range(len(y)):
+    w += (alphs_opt[i]*y[i]*X[i]).reshape(2,1)
+    
+b = (w.T@X[2] + w.T@X[44])[0]/2
+
 for i in range(len(y)):
     for j in range(len(y)):
-        arr[i][j] = (alphs_opt[i]*y[i]*X[i]@np.array([xxx[i][j], yyy[i][j]])) > 0
+        arr[i][j] = ((alphs_opt[i]*y[i]*X[i]@np.array([xxx[i][j], yyy[i][j]])) + b) > 0
+        
 
 dataframe = pd.DataFrame(data=np.hstack([np.vstack((xxx.ravel(), yyy.ravel())).T, arr.ravel().reshape(-1, 1)]), columns=("x", "y", "label"))
 sn.FacetGrid(dataframe, hue="label", size=6).map(plt.scatter, 'x', 'y').add_legend()
 plt.show()
+
 
 # y_hat = []
 
