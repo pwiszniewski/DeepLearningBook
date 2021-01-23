@@ -66,7 +66,7 @@ w = np.zeros((2,1))
 for i in range(len(y)):
     w += (alphs_opt[i]*y[i]*X[i]).reshape(2,1)
     
-b = (w.T@X[2] + w.T@X[44])[0]/2
+b = -(w.T@X[2] + w.T@X[44])[0]/2
 
 for i in range(len(y)):
     for j in range(len(y)):
@@ -75,6 +75,13 @@ for i in range(len(y)):
 
 dataframe = pd.DataFrame(data=np.hstack([np.vstack((xxx.ravel(), yyy.ravel())).T, arr.ravel().reshape(-1, 1)]), columns=("x", "y", "label"))
 sn.FacetGrid(dataframe, hue="label", size=6).map(plt.scatter, 'x', 'y').add_legend()
+dataframe = pd.DataFrame(data=np.hstack([X,y_plot]), columns=("x", "y", "label"))
+sn.FacetGrid(dataframe, hue="label", size=6).map(plt.scatter, 'x', 'y').add_legend()
+plt.scatter(X[2][0], X[2][1], color='r')
+plt.scatter(X[44][0], X[44][1], color='r')
+plt.scatter(w[0], w[1], color='green', s=100)
+x_min, x_max = plt.xlim()
+plt.plot((x_min, x_max), ((-b-w[0]*x_min)/w[1], (-b-w[0]*x_max)/w[1]))
 plt.show()
 
 
