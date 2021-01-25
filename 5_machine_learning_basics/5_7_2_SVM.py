@@ -70,7 +70,8 @@ b = -(w.T@X[2] + w.T@X[44])[0]/2
 
 for i in range(len(y)):
     for j in range(len(y)):
-        arr[i][j] = ((alphs_opt[i]*y[i]*X[i]@np.array([xxx[i][j], yyy[i][j]])) + b) > 0
+        arr[i][j] = (w.T@np.array([xxx[i][j], yyy[i][j]]) + b) > 0
+        # arr[i][j] = ((alphs_opt[i]*y[i]*X[i]@np.array([xxx[i][j], yyy[i][j]])) + b) > 0
         
 
 dataframe = pd.DataFrame(data=np.hstack([np.vstack((xxx.ravel(), yyy.ravel())).T, arr.ravel().reshape(-1, 1)]), columns=("x", "y", "label"))
