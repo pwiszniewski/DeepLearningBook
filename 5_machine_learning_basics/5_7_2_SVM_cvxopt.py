@@ -30,73 +30,82 @@ for i in range(N):
 
 
 Q = matrix(Q)
-# Q = 2*matrix([ [2, .5], [.5, 1] ])
-# p = matrix([1.0, 1.0])
-# G = matrix([[-1.0,0.0],[0.0,-1.0]])
-# h = matrix([0.0,0.0])
-# A = matrix([1.0, 1.0], (1,2))
-# b = matrix(1.0)
+# p = -matrix(np.ones((N,1))/N)
+p = -matrix(np.ones((N,1)))
+G = -matrix(np.eye(N))
+h = -matrix(np.zeros((N,1)))
+A = matrix(y.reshape(1,N).astype('float64') )
+b = matrix(0.0)
+sol = solvers.qp(Q, p, G, h, A, b)
+alphs_opt = np.array(sol['x'])
+
+# Q = matrix(Q)
+# p = -matrix(np.ones((N,1)))
+# G = -matrix(np.eye(N))
+# h = -matrix(np.ones((N,1)))
+# A = matrix(y.reshape(1,N).astype('float64') )
+# b = matrix(0)
 # alphs_opt=solvers.qp(Q, p, G, h, A, b)
 
 
 
-# # bounds = [[0, np.inf] for _ in range(N)]
+# bounds = [[0, np.inf] for _ in range(N)]
 
-# # def con(alphs):
-# #     return alphs.T @ y
-# # nlc = NonlinearConstraint(con, 0, 0)
-# # cons = {'type':'eq', 'fun': con}
+# def con(alphs):
+#     return alphs.T @ y
+# nlc = NonlinearConstraint(con, 0, 0)
+# cons = {'type':'eq', 'fun': con}
 
-# # options = {'maxiter': 10}
-
-
-# # res = minimize(func, alphs0, (X, y), tol=1e-5, bounds=bounds, constraints=cons,
-# #                options=options)
+# options = {'maxiter': 10}
 
 
-# ## draw decision boundary
-
-# xx = np.arange(-7, 7, .1)
-# yy = np.arange(-12, 2, .1)
+# res = minimize(func, alphs0, (X, y), tol=1e-5, bounds=bounds, constraints=cons,
+#                options=options)
 
 
-# xxx, yyy = np.meshgrid(xx, yy, sparse=False)
+## draw decision boundary
 
-# arr = np.zeros((len(xx),len(yy)))
+xx = np.arange(-7, 7, .1)
+yy = np.arange(-12, 2, .1)
+
+
+xxx, yyy = np.meshgrid(xx, yy, sparse=False)
+
+arr = np.zeros((len(xx),len(yy)))
 
 # alphs_opt = np.round(res.x.reshape((-1,1)), 2)
 
-# w = np.zeros((2,1))
-# for i in range(len(y)):
-#     w += (alphs_opt[i]*y[i]*X[i]).reshape(2,1)
+w = np.zeros((2,1))
+for i in range(len(y)):
+    w += (alphs_opt[i]*y[i]*X[i]).reshape(2,1)
 
-# sup_vects = []  
-# for i in np.nonzero(alphs_opt)[0]:
-#     sup_vects.append((X[i], y[i]))
+sup_vects = []  
+for i in np.nonzero(np.round(alphs_opt, 2))[0]:
+    sup_vects.append((X[i], y[i]))
     
-# if sup_vects[0][1] != sup_vects[1][1]:
-#     b = -(w.T@sup_vects[0][0] + w.T@sup_vects[1][0])[0]/2
-# else:
-#     b = -(w.T@sup_vects[0][0]  + w.T@sup_vects[2][0])[0]/2
+if sup_vects[0][1] != sup_vects[1][1]:
+    b = -(w.T@sup_vects[0][0] + w.T@sup_vects[1][0])[0]/2
+else:
+    b = -(w.T@sup_vects[0][0]  + w.T@sup_vects[2][0])[0]/2
 
-# for i in range(len(xx)):
-#     for j in range(len(yy)):
-#         arr[i][j] = (w.T@np.array([xxx[i][j], yyy[i][j]]) + b) > 0
-#         # arr[i][j] = ((alphs_opt[i]*y[i]*X[i]@np.array([xxx[i][j], yyy[i][j]])) + b) > 0
+for i in range(len(xx)):
+    for j in range(len(yy)):
+        arr[i][j] = (w.T@np.array([xxx[i][j], yyy[i][j]]) + b) > 0
+        # arr[i][j] = ((alphs_opt[i]*y[i]*X[i]@np.array([xxx[i][j], yyy[i][j]])) + b) > 0
     
     
-# dataframe = pd.DataFrame(data=np.hstack([np.vstack((xxx.ravel(), yyy.ravel())).T, arr.ravel().reshape(-1, 1)]), columns=("x", "y", "label"))
-# sn.FacetGrid(dataframe, hue="label", palette='pastel', size=6).map(plt.scatter, 'x', 'y').add_legend()
-# dataframe = pd.DataFrame(data=np.hstack([X,y_plot]), columns=("x", "y", "label"))
-# sn.FacetGrid(dataframe, hue="label", size=6).map(plt.scatter, 'x', 'y').add_legend()
+dataframe = pd.DataFrame(data=np.hstack([np.vstack((xxx.ravel(), yyy.ravel())).T, arr.ravel().reshape(-1, 1)]), columns=("x", "y", "label"))
+sn.FacetGrid(dataframe, hue="label", palette='pastel', size=6).map(plt.scatter, 'x', 'y').add_legend()
+dataframe = pd.DataFrame(data=np.hstack([X,y_plot]), columns=("x", "y", "label"))
+sn.FacetGrid(dataframe, hue="label", size=6).map(plt.scatter, 'x', 'y').add_legend()
 
-# for sp in sup_vects:
-#     plt.scatter(sp[0][0], sp[0][1], color='r')
+for sp in sup_vects:
+    plt.scatter(sp[0][0], sp[0][1], color='r')
 
-# # plt.scatter(w[0], w[1], color='green', s=100)
-# x_min, x_max = plt.xlim()
-# y_min, y_max = plt.ylim()
-# plt.plot((x_min, x_max), ((-b-w[0]*x_min)/w[1], (-b-w[0]*x_max)/w[1]), color='red')
-# plt.ylim(y_min, y_max)
-# plt.show()
+# plt.scatter(w[0], w[1], color='green', s=100)
+x_min, x_max = plt.xlim()
+y_min, y_max = plt.ylim()
+plt.plot((x_min, x_max), ((-b-w[0]*x_min)/w[1], (-b-w[0]*x_max)/w[1]), color='red')
+plt.ylim(y_min, y_max)
+plt.show()
 
