@@ -39,30 +39,6 @@ b = matrix(0.0)
 sol = solvers.qp(Q, p, G, h, A, b)
 alphs_opt = np.array(sol['x'])
 
-# Q = matrix(Q)
-# p = -matrix(np.ones((N,1)))
-# G = -matrix(np.eye(N))
-# h = -matrix(np.ones((N,1)))
-# A = matrix(y.reshape(1,N).astype('float64') )
-# b = matrix(0)
-# alphs_opt=solvers.qp(Q, p, G, h, A, b)
-
-
-
-# bounds = [[0, np.inf] for _ in range(N)]
-
-# def con(alphs):
-#     return alphs.T @ y
-# nlc = NonlinearConstraint(con, 0, 0)
-# cons = {'type':'eq', 'fun': con}
-
-# options = {'maxiter': 10}
-
-
-# res = minimize(func, alphs0, (X, y), tol=1e-5, bounds=bounds, constraints=cons,
-#                options=options)
-
-
 ## draw decision boundary
 
 xx = np.arange(-7, 7, .1)
