@@ -9,8 +9,8 @@ from scipy.optimize import minimize
 from cvxopt import matrix, solvers
 
 ## make blobs
-N = 50
-X, y = make_blobs(n_samples=N, centers=2, n_features=2, random_state=2)
+N = 20
+X, y = make_blobs(n_samples=N, centers=2, n_features=2, random_state=0)
 y[y==0] = -1
 
 # plot examples
@@ -33,19 +33,13 @@ def poly_kernel(x1, x2, d=2):
 
 
 
-# for i in range(N):
-#     for j in range(N):
-#         Q[i][j] = y[i]*y[j]*poly_kernel(X[i],X[j])
-        
+## optimization
 for i in range(N):
     for j in range(N):
         Q[i][j] = y[i]*y[j]*poly_kernel(X[i], X[j])
-        # Q[i][j] = y[i]*y[j]*normal_kernel(X[i], X[j])
-        # Q[i][j] = y[i]*y[j]*X[i]@X[j]
 
 
 Q = matrix(Q)
-# p = -matrix(np.ones((N,1))/N)
 p = -matrix(np.ones((N,1)))
 G = -matrix(np.eye(N))
 h = -matrix(np.zeros((N,1)))
@@ -54,56 +48,42 @@ b = matrix(0.0)
 sol = solvers.qp(Q, p, G, h, A, b)
 alphs_opt = np.array(sol['x'])
 
-## draw decision boundary
 
+## get support vectors
+sup_vects = []  
+for i in np.nonzero(np.round(alphs_opt, 4))[0]:
+    sup_vects.append((X[i], y[i]))
+    
+    
+## calculate bias
+sums = [0, 0]
+bs = [0, 0]
+for j in range(2):
+    for k in range(len(y)):
+        sums[j] += alphs_opt[k]*y[k]*poly_kernel(sup_vects[j][0], X[k])
+        bs[j] = sup_vects[j][1] - sums[j]
+        
+if np.round(bs[1] - bs[0], 2):
+    print('something wrong')
+
+## classify points to visualisation
 xx = np.arange(-7, 7, .1)
 yy = np.arange(-12, 2, .1)
-
-
 xxx, yyy = np.meshgrid(xx, yy, sparse=False)
-
 arr = np.zeros((len(xx),len(yy)))
 
-# alphs_opt = np.round(res.x.reshape((-1,1)), 2)
-
-# w = np.zeros((2,1))
-# for i in range(len(y)):
-#     w += (alphs_opt[i]*y[i]*X[i]).reshape(2,1)
-
-# sup_vects = []  
-# for i in np.nonzero(np.round(alphs_opt, 4))[0]:
-#     sup_vects.append((X[i], y[i]))
-    
-# if sup_vects[0][1] != sup_vects[1][1]:
-#     b = -(w.T@sup_vects[0][0] + w.T@sup_vects[1][0])[0]/2
-# else:
-#     b = -(w.T@sup_vects[0][0]  + w.T@sup_vects[2][0])[0]/2
-    
-b = 0
-
+b = bs[0]
 for i in range(len(xx)):
     for j in range(len(yy)):
         for k in range(len(y)):
             arr[i][j] += alphs_opt[k]*y[k]*poly_kernel(np.array([xxx[i][j], yyy[i][j]]), X[k])
-            # arr[i][j] += alphs_opt[k]*y[k]*np.array([xxx[i][j], yyy[i][j]])@X[k]
         arr[i][j] = (arr[i][j] + b) > 0
-            
-            
-        # arr[i][j] = (w.T@np.array(poly_kernel_num(xxx[i][j], yyy[i][j], 2)) + b) > 0
-    
-    
+
+## visualisation of decision boundary
 dataframe = pd.DataFrame(data=np.hstack([np.vstack((xxx.ravel(), yyy.ravel())).T, arr.ravel().reshape(-1, 1)]), columns=("x", "y", "label"))
 sn.FacetGrid(dataframe, hue="label", palette='pastel', size=6).map(plt.scatter, 'x', 'y').add_legend()
 dataframe = pd.DataFrame(data=np.hstack([X,y_plot]), columns=("x", "y", "label"))
 sn.FacetGrid(dataframe, hue="label", size=6).map(plt.scatter, 'x', 'y').add_legend()
 
-# for sp in sup_vects:
-#     plt.scatter(sp[0][0], sp[0][1], color='r')
-
-# # plt.scatter(w[0], w[1], color='green', s=100)
-# x_min, x_max = plt.xlim()
-# y_min, y_max = plt.ylim()
-# plt.plot((x_min, x_max), ((-b-w[0]*x_min)/w[1], (-b-w[0]*x_max)/w[1]), color='red')
-# plt.ylim(y_min, y_max)
 plt.show()
 
