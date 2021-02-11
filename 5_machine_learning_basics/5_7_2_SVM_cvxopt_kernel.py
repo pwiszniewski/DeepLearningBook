@@ -30,13 +30,15 @@ def normal_kernel(x1, x2):
 def poly_kernel(x1, x2, d=2):
     return (x1@x2 + 1)**d
 
+def gauss_kernel(x1, x2, sigma=2):
+    return np.exp(-np.linalg.norm(x1 - x2) / (2*sigma**2))
 
-
+kernel = gauss_kernel
 
 ## optimization
 for i in range(N):
     for j in range(N):
-        Q[i][j] = y[i]*y[j]*poly_kernel(X[i], X[j])
+        Q[i][j] = y[i]*y[j]*kernel(X[i], X[j])
 
 
 Q = matrix(Q)
@@ -51,7 +53,7 @@ alphs_opt = np.array(sol['x'])
 
 ## get support vectors
 sup_vects = []  
-for i in np.nonzero(np.round(alphs_opt, 4))[0]:
+for i in np.nonzero(np.round(alphs_opt, 6))[0]:
     sup_vects.append((X[i], y[i]))
     
     
@@ -60,8 +62,8 @@ sums = [0, 0]
 bs = [0, 0]
 for j in range(2):
     for k in range(len(y)):
-        sums[j] += alphs_opt[k]*y[k]*poly_kernel(sup_vects[j][0], X[k])
-        bs[j] = sup_vects[j][1] - sums[j]
+        sums[j] += alphs_opt[k]*y[k]*kernel(sup_vects[j][0], X[k])
+    bs[j] = sup_vects[j][1] - sums[j]
         
 if np.round(bs[1] - bs[0], 2):
     print('something wrong')
@@ -76,7 +78,7 @@ b = bs[0]
 for i in range(len(xx)):
     for j in range(len(yy)):
         for k in range(len(y)):
-            arr[i][j] += alphs_opt[k]*y[k]*poly_kernel(np.array([xxx[i][j], yyy[i][j]]), X[k])
+            arr[i][j] += alphs_opt[k]*y[k]*kernel(np.array([xxx[i][j], yyy[i][j]]), X[k])
         arr[i][j] = (arr[i][j] + b) > 0
 
 ## visualisation of decision boundary
