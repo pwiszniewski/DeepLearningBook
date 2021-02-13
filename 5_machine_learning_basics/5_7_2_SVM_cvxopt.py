@@ -41,13 +41,16 @@ alphs_opt = np.array(sol['x'])
 
 ## draw decision boundary
 
-xx = np.arange(-7, 7, .1)
-yy = np.arange(-12, 2, .1)
+x_min, x_max = X[:,0].min() - 1, X[:,0].max() + 1
+y_min, y_max = X[:,1].min() - 1, X[:,1].max() + 1
+
+xx = np.arange(x_min, x_max, .1)
+yy = np.arange(y_min, y_max, .1)
 
 
 xxx, yyy = np.meshgrid(xx, yy, sparse=False)
 
-arr = np.zeros((len(xx),len(yy)))
+arr = np.zeros((len(yy),len(xx)))
 
 # alphs_opt = np.round(res.x.reshape((-1,1)), 2)
 
@@ -64,8 +67,8 @@ if sup_vects[0][1] != sup_vects[1][1]:
 else:
     b = -(w.T@sup_vects[0][0]  + w.T@sup_vects[2][0])[0]/2
 
-for i in range(len(xx)):
-    for j in range(len(yy)):
+for i in range(len(yy)):
+    for j in range(len(xx)):
         arr[i][j] = (w.T@np.array([xxx[i][j], yyy[i][j]]) + b) > 0
         # arr[i][j] = ((alphs_opt[i]*y[i]*X[i]@np.array([xxx[i][j], yyy[i][j]])) + b) > 0
     
@@ -79,9 +82,10 @@ for sp in sup_vects:
     plt.scatter(sp[0][0], sp[0][1], color='r')
 
 # plt.scatter(w[0], w[1], color='green', s=100)
-x_min, x_max = plt.xlim()
-y_min, y_max = plt.ylim()
+# x_min, x_max = plt.xlim()
+# y_min, y_max = plt.ylim()
 plt.plot((x_min, x_max), ((-b-w[0]*x_min)/w[1], (-b-w[0]*x_max)/w[1]), color='red')
+plt.xlim(x_min, x_max)
 plt.ylim(y_min, y_max)
 plt.show()
 

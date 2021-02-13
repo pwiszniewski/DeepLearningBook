@@ -9,8 +9,8 @@ from scipy.optimize import minimize
 from cvxopt import matrix, solvers
 
 ## make blobs
-N = 20
-X, y = make_blobs(n_samples=N, centers=2, n_features=2, random_state=0)
+N = 50
+X, y = make_blobs(n_samples=N, centers=2, n_features=2, cluster_std=2, random_state=0)
 y[y==0] = -1
 
 # plot examples
@@ -27,13 +27,16 @@ Q = np.zeros((N, N))
 def normal_kernel(x1, x2):
     return x1@x2
 
-def poly_kernel(x1, x2, d=2):
+def poly_kernel(x1, x2, d=4):
     return (x1@x2 + 1)**d
 
 def gauss_kernel(x1, x2, sigma=2):
     return np.exp(-np.linalg.norm(x1 - x2) / (2*sigma**2))
 
-kernel = gauss_kernel
+def hyperbolic_tangent_kernel(x1, x2, sigma=2):
+    return np.exp(-np.linalg.norm(x1 - x2) / (2*sigma**2))
+
+kernel = hyperbolic_tangent_kernel
 
 ## optimization
 for i in range(N):
@@ -69,14 +72,18 @@ if np.round(bs[1] - bs[0], 2):
     print('something wrong')
 
 ## classify points to visualisation
-xx = np.arange(-7, 7, .1)
-yy = np.arange(-12, 2, .1)
+x_min, x_max = X[:,0].min() - 1, X[:,0].max() + 1
+y_min, y_max = X[:,1].min() - 1, X[:,1].max() + 1
+
+xx = np.arange(x_min, x_max, .1)
+yy = np.arange(y_min, y_max, .1)
+
 xxx, yyy = np.meshgrid(xx, yy, sparse=False)
-arr = np.zeros((len(xx),len(yy)))
+arr = np.zeros((len(yy),len(xx)))
 
 b = bs[0]
-for i in range(len(xx)):
-    for j in range(len(yy)):
+for i in range(len(yy)):
+    for j in range(len(xx)):
         for k in range(len(y)):
             arr[i][j] += alphs_opt[k]*y[k]*kernel(np.array([xxx[i][j], yyy[i][j]]), X[k])
         arr[i][j] = (arr[i][j] + b) > 0
@@ -87,5 +94,8 @@ sn.FacetGrid(dataframe, hue="label", palette='pastel', size=6).map(plt.scatter, 
 dataframe = pd.DataFrame(data=np.hstack([X,y_plot]), columns=("x", "y", "label"))
 sn.FacetGrid(dataframe, hue="label", size=6).map(plt.scatter, 'x', 'y').add_legend()
 
+x_min, x_max = plt.xlim()
+y_min, y_max = plt.ylim()
+plt.ylim(y_min, y_max)
 plt.show()
 
