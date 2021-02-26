@@ -50,7 +50,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 
-rng = np.random.RandomState(0)
+rng = np.random.RandomState(4)
 n_samples = 500
 cov = [[3, 3],
        [3, 4]]
@@ -70,6 +70,7 @@ plt.legend()
 plt.show()
 
 y = X.dot(pca.components_[1]) + rng.normal(size=n_samples) / 2
+pca_components = pca.components_
 
 fig, axes = plt.subplots(1, 2, figsize=(10, 3))
 
@@ -80,8 +81,22 @@ axes[1].set(xlabel='Projected data onto second PCA component', ylabel='y')
 plt.tight_layout()
 plt.show()
 
-
+## Eigvect solution
 eigval, eigvect = np.linalg.eig(X.T@X)
+
+plt.scatter(X[:, 0], X[:, 1], alpha=.3, label='samples')
+for i, (comp, var) in enumerate(zip(eigvect, eigval/np.max(eigval))):
+    comp = comp * var  # scale component by its variance explanation power
+    plt.plot([0, comp[0]], [0, comp[1]], label=f"Component {i}", linewidth=5,
+             color=f"C{i + 2}")
+plt.gca().set(aspect='equal',
+              title="2-dimensional dataset with principal components",
+              xlabel='first feature', ylabel='second feature')
+plt.legend()
+plt.show()
+
+
+
 fig, axes = plt.subplots(1, 2, figsize=(10, 3))
 axes[0].scatter(X.dot(eigvect[0]), y, alpha=.3)
 axes[0].set(xlabel='Projected data onto first PCA component', ylabel='y')
