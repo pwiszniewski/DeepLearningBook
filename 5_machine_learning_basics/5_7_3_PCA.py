@@ -96,7 +96,6 @@ plt.legend()
 plt.show()
 
 
-
 fig, axes = plt.subplots(1, 2, figsize=(10, 3))
 axes[0].scatter(X.dot(eigvect[0]), y, alpha=.3)
 axes[0].set(xlabel='Projected data onto first PCA component', ylabel='y')
@@ -104,3 +103,20 @@ axes[1].scatter(X.dot(eigvect[1]), y, alpha=.3)
 axes[1].set(xlabel='Projected data onto second PCA component', ylabel='y')
 plt.tight_layout()
 plt.show()
+
+
+## From covariance matrix
+
+# calculate the mean of each column
+M = np.mean(X.T, axis=1)
+# center columns by subtracting column means
+C = X - M
+# calculate covariance matrix of centered matrix
+V = np.cov(C.T)
+# eigendecomposition of covariance matrix
+values, vectors = np.linalg.eig(V)
+print(vectors)
+print(values)
+# project data
+P = vectors.T.dot(C.T)
+P = P.T
