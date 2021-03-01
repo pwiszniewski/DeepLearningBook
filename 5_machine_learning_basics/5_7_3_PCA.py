@@ -120,3 +120,9 @@ print(values)
 # project data
 P = vectors.T.dot(C.T)
 P = P.T
+
+
+## Based on SVD
+u, s, vh = np.linalg.svd(X, full_matrices=False)
+smat = np.diag(s)
+var_from_s = smat**2
