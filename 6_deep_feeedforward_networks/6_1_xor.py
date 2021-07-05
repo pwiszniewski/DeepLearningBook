@@ -34,19 +34,22 @@ b = 0
 
 h = X @ W + c
 
+# two yellow points are mapped to a single point
 # all points in hidden space lie on one line with slope 1
 # and cannot be separated linearly
 plt.scatter(h[:,0], h[:,1], c=y)
 xmin, xmax = plt.xlim()
-plt.title('MLP')
+plt.title('MLP without activation functions')
 plt.show()
 
+# two yellow points are also mapped to a single point
 # after ReLU the points are linearly separeble
 def ReLU(x):
     return np.maximum(x, 0)
 h_rect = ReLU(h)
 plt.scatter(h_rect[:,0], h_rect[:,1], c=y)
 xmin, xmax = plt.xlim()
+plt.title('MLP with ReLU')
 plt.show()
 
 y_hat_lr = h_rect @ w
