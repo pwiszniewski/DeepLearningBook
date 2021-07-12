@@ -16,9 +16,6 @@ y = np.array([0, 1, 1, 0])
 # X = np.array([[1,1], [0,0], [-1,-1], [1,-1], [-1,1], [0,1], [1,0], [-1,0], [0,-1]])
 # y = np.array(range(len(X)))
 
-x_grid = np.arange(-3.0,3.0,0.1)
-y_grid = np.arange(-3.0,3.0,0.1)
-
 def ReLU(x):
     return np.maximum(x, 0)
 
@@ -26,31 +23,15 @@ def draw_path(ax):
     global a, b, c, d
     W = np.array([[a, b], 
               [c, d]])
-    C = np.array([e, f])  
-
-    # plot decision boundary
-    X_grid,Y_grid = np.meshgrid(x_grid, y_grid) # grid of point    
-    XX = np.concatenate([X_grid.reshape(1,-1), Y_grid.reshape(1,-1)], axis=0).T
-    # print(np.concatenate([np.ravel(X_grid), np.ravel(Y_grid)]))
-    X_trans = ReLU(XX @ W + C)
-    w_out = np.array([g, h]).reshape(2, 1)
-    out = X_trans @ w_out
-    ax.scatter(X_trans[:,0], X_trans[:,1], c=out > .5)
-
-
-
+    C = np.array([e, f])          
     X_trans = ReLU(X @ W + C)
-    ax.scatter(X_trans[:,0], X_trans[:,1], c=y, cmap=plt.cm.Reds)
-    #plt.contourf(x,y,z)
+    ax.scatter(X_trans[:,0], X_trans[:,1], c=y)
     
-
 
     
 fig, ax = plt.subplots()
 plt.subplots_adjust(left=0.2, bottom=0.25)
 ax.scatter(X[:,0], X[:,1], c=y)
-
-ax.plot(X[:,0], X[:,1], c=y)
 ax.set_xlim(-5, 5)
 ax.set_ylim(-5, 5)
 ax.set_aspect(1)
@@ -63,17 +44,13 @@ axc = plt.axes([0.25, 0.05, 0.3, 0.03], facecolor=axcolor)
 axd = plt.axes([0.25, 0.0, 0.3, 0.03], facecolor=axcolor)
 axe = plt.axes([0.6, 0.15, 0.3, 0.03], facecolor=axcolor)
 axf = plt.axes([0.6, 0.1, 0.3, 0.03], facecolor=axcolor)
-axg = plt.axes([0.6, 0.05, 0.3, 0.03], facecolor=axcolor)
-axh = plt.axes([0.6, 0.0, 0.3, 0.03], facecolor=axcolor)
 
 sa = Slider(axa, 'a', -10, 10, valinit=a, valstep=.1)
 sb = Slider(axb, 'b', -10, 10, valinit=b, valstep=.1)
 sc = Slider(axc, 'c', -10, 10, valinit=c, valstep=.1)
 sd = Slider(axd, 'd', -10, 10, valinit=d, valstep=.1)
-se = Slider(axe, 'e', -10, 10, valinit=e, valstep=.1)
-sf = Slider(axf, 'f', -10, 10, valinit=f, valstep=.1)
-sg = Slider(axg, 'g', -10, 10, valinit=g, valstep=.1)
-sh = Slider(axh, 'h', -10, 10, valinit=h, valstep=.1)
+se = Slider(axe, 'e', -10, 10, valinit=d, valstep=.1)
+sf = Slider(axf, 'f', -10, 10, valinit=d, valstep=.1)
 
 
 def update_a(val):
@@ -155,8 +132,8 @@ sc.on_changed(update_c)
 sd.on_changed(update_d)
 se.on_changed(update_e)
 sf.on_changed(update_f)
-sg.on_changed(update_g)
-sh.on_changed(update_h)
+sf.on_changed(update_g)
+sf.on_changed(update_h)
 
 resetax = plt.axes([0.8, 0.025, 0.1, 0.04])
 button = Button(resetax, 'Reset', color=axcolor, hovercolor='0.975')

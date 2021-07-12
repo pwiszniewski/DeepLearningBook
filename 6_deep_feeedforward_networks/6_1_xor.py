@@ -26,10 +26,10 @@ plt.show()
 ''' MLP '''
 # simple MLP with 1 hidden layer consisting of 2 hidden units
 # function describing MKP is: f = w.T @ max{0, W.T@x + c} + b
-W = np.array([[1, 1], 
+W = np.array([[1, 1], # weigths of hidden layer
               [1, 1]])
-c = np.array([0, -1])
-w = np.array([1, -2])
+c = np.array([0, -1]) # constants for hidden layer
+w = np.array([1, -2]) # weights of final layer
 b = 0
 
 h = X @ W + c
