@@ -10,6 +10,7 @@ from matplotlib.widgets import Slider, Button, RadioButtons
 a,b,c,d = 1,0,0,1   # coeffs of hidden layer matrix
 e,f = 0,0           # constants of hidden layer
 g, h = 0,0           # coeffs of final layer
+activation = 'ReLU'
 X = np.array([[0,0], [0,1], [1,0], [1,1]])
 y = np.array([0, 1, 1, 0])
 
@@ -32,15 +33,17 @@ def draw_path(ax):
     X_grid,Y_grid = np.meshgrid(x_grid, y_grid) # grid of point    
     XX = np.concatenate([X_grid.reshape(1,-1), Y_grid.reshape(1,-1)], axis=0).T
     # print(np.concatenate([np.ravel(X_grid), np.ravel(Y_grid)]))
-    X_trans = ReLU(XX @ W + C)
+    X_trans = XX @ W + C
+    if activation == 'ReLU':
+        X_trans = ReLU(X_trans)
     w_out = np.array([g, h]).reshape(2, 1)
     out = X_trans @ w_out
-    ax.scatter(X_trans[:,0], X_trans[:,1], c=out > .5)
+    ax.scatter(X_trans[:,0], X_trans[:,1], c=out > .5, cmap=plt.cm.Reds)
 
-
-
-    X_trans = ReLU(X @ W + C)
-    ax.scatter(X_trans[:,0], X_trans[:,1], c=y, cmap=plt.cm.Reds)
+    X_trans = X @ W + C
+    if activation == 'ReLU':
+        X_trans = ReLU(X_trans)
+    ax.scatter(X_trans[:,0], X_trans[:,1], c=y)
     #plt.contourf(x,y,z)
     
 
@@ -55,8 +58,11 @@ ax.set_xlim(-5, 5)
 ax.set_ylim(-5, 5)
 ax.set_aspect(1)
 
-
 axcolor = 'lightgoldenrodyellow'
+rax = plt.axes([0.05, 0.7, 0.15, 0.15], facecolor=axcolor)
+radio = RadioButtons(rax, ('ReLU', 'None'))
+
+
 axa = plt.axes([0.25, 0.15, 0.3, 0.03], facecolor=axcolor)
 axb = plt.axes([0.25, 0.1, 0.3, 0.03], facecolor=axcolor)
 axc = plt.axes([0.25, 0.05, 0.3, 0.03], facecolor=axcolor)
@@ -148,6 +154,15 @@ def update_h(val):
     ax.set_ylim(-5, 5)
     fig.canvas.draw_idle()
 
+def switch_activation(label):
+    global activation
+    ax.clear()
+    activation = label if label != 'None' else None
+    draw_path(ax)
+    ax.set_xlim(-5, 5)
+    ax.set_ylim(-5, 5)
+    fig.canvas.draw_idle()
+
 
 sa.on_changed(update_a)
 sb.on_changed(update_b)
@@ -157,6 +172,7 @@ se.on_changed(update_e)
 sf.on_changed(update_f)
 sg.on_changed(update_g)
 sh.on_changed(update_h)
+radio.on_clicked(switch_activation)
 
 resetax = plt.axes([0.8, 0.025, 0.1, 0.04])
 button = Button(resetax, 'Reset', color=axcolor, hovercolor='0.975')
