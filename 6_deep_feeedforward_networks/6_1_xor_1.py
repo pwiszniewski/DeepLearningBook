@@ -23,7 +23,29 @@ y_grid = np.arange(-3.0,3.0,0.1)
 def ReLU(x):
     return np.maximum(x, 0)
 
-def draw_path(ax):
+
+def draw_original(ax):
+    global a, b, c, d
+    W = np.array([[a, b], 
+              [c, d]])
+    C = np.array([e, f])  
+
+    # plot decision boundary
+    X_grid,Y_grid = np.meshgrid(x_grid, y_grid) # grid of point    
+    XX = np.concatenate([X_grid.reshape(1,-1), Y_grid.reshape(1,-1)], axis=0).T
+    X_trans = XX @ W + C
+    if activation == 'ReLU':
+        X_trans = ReLU(X_trans)
+    w_out = np.array([g, h]).reshape(2, 1)
+    out = X_trans @ w_out
+    ax.scatter(XX[:,0], XX[:,1], c=out > .5, cmap=plt.cm.Reds)
+
+    X_trans = X @ W + C
+    if activation == 'ReLU':
+        X_trans = ReLU(X_trans)
+    ax.scatter(X[:,0], X[:,1], c=y)
+
+def draw_transformed(ax):
     global a, b, c, d
     W = np.array([[a, b], 
               [c, d]])
@@ -49,19 +71,28 @@ def draw_path(ax):
 
 
     
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(1, 2)
 plt.subplots_adjust(left=0.2, bottom=0.25)
-ax.scatter(X[:,0], X[:,1], c=y)
+ax0 = ax[0]
+ax = ax[1]
 
+ax.scatter(X[:,0], X[:,1], c=y)
 ax.plot(X[:,0], X[:,1], c=y)
 ax.set_xlim(-5, 5)
 ax.set_ylim(-5, 5)
 ax.set_aspect(1)
 
+ax0.scatter(X[:,0], X[:,1], c=y)
+ax0.plot(X[:,0], X[:,1], c=y)
+ax0.set_xlim(-5, 5)
+ax0.set_ylim(-5, 5)
+ax0.set_aspect(1)
+
+
+
 axcolor = 'lightgoldenrodyellow'
 rax = plt.axes([0.05, 0.7, 0.15, 0.15], facecolor=axcolor)
 radio = RadioButtons(rax, ('ReLU', 'None'))
-
 
 axa = plt.axes([0.25, 0.15, 0.3, 0.03], facecolor=axcolor)
 axb = plt.axes([0.25, 0.1, 0.3, 0.03], facecolor=axcolor)
@@ -84,81 +115,117 @@ sh = Slider(axh, 'h', -10, 10, valinit=h, valstep=.1)
 
 def update_a(val):
     global a
-    ax.clear()
     a = val
-    draw_path(ax)
+    ax0.clear()
+    ax.clear()    
+    draw_original(ax0)
+    draw_transformed(ax)
+    ax0.set_xlim(-5, 5)
+    ax0.set_ylim(-5, 5)
     ax.set_xlim(-5, 5)
     ax.set_ylim(-5, 5)
     fig.canvas.draw_idle()
 
 def update_b(val):
     global b
-    ax.clear()
     b = val
-    draw_path(ax)
+    ax0.clear()
+    ax.clear()    
+    draw_original(ax0)
+    draw_transformed(ax)
+    ax0.set_xlim(-5, 5)
+    ax0.set_ylim(-5, 5)
     ax.set_xlim(-5, 5)
     ax.set_ylim(-5, 5)
     fig.canvas.draw_idle()
 
 def update_c(val):
     global c
-    ax.clear()
     c = val
-    draw_path(ax)
+    ax0.clear()
+    ax.clear()    
+    draw_original(ax0)
+    draw_transformed(ax)
+    ax0.set_xlim(-5, 5)
+    ax0.set_ylim(-5, 5)
     ax.set_xlim(-5, 5)
     ax.set_ylim(-5, 5)
     fig.canvas.draw_idle()
 
 def update_d(val):
     global d
-    ax.clear()
     d = val
-    draw_path(ax)
+    ax0.clear()
+    ax.clear()    
+    draw_original(ax0)
+    draw_transformed(ax)
+    ax0.set_xlim(-5, 5)
+    ax0.set_ylim(-5, 5)
     ax.set_xlim(-5, 5)
     ax.set_ylim(-5, 5)
     fig.canvas.draw_idle()
 
 def update_e(val):
     global e
-    ax.clear()
     e = val
-    draw_path(ax)
+    ax0.clear()
+    ax.clear()    
+    draw_original(ax0)
+    draw_transformed(ax)
+    ax0.set_xlim(-5, 5)
+    ax0.set_ylim(-5, 5)
     ax.set_xlim(-5, 5)
     ax.set_ylim(-5, 5)
     fig.canvas.draw_idle()
 
 def update_f(val):
     global f
-    ax.clear()
     f = val
-    draw_path(ax)
+    ax0.clear()
+    ax.clear()    
+    draw_original(ax0)
+    draw_transformed(ax)
+    ax0.set_xlim(-5, 5)
+    ax0.set_ylim(-5, 5)
     ax.set_xlim(-5, 5)
     ax.set_ylim(-5, 5)
     fig.canvas.draw_idle()
 
 def update_g(val):
     global g
-    ax.clear()
     g = val
-    draw_path(ax)
+    ax0.clear()
+    ax.clear()    
+    draw_original(ax0)
+    draw_transformed(ax)
+    ax0.set_xlim(-5, 5)
+    ax0.set_ylim(-5, 5)
     ax.set_xlim(-5, 5)
     ax.set_ylim(-5, 5)
     fig.canvas.draw_idle()
 
 def update_h(val):
     global h
-    ax.clear()
     h = val
-    draw_path(ax)
+    ax0.clear()
+    ax.clear()    
+    draw_original(ax0)
+    draw_transformed(ax)
+    ax0.set_xlim(-5, 5)
+    ax0.set_ylim(-5, 5)
     ax.set_xlim(-5, 5)
     ax.set_ylim(-5, 5)
     fig.canvas.draw_idle()
 
 def switch_activation(label):
     global activation
-    ax.clear()
-    activation = label if label != 'None' else None
-    draw_path(ax)
+    activation = label
+    ax0.clear()
+    ax.clear()    
+    draw_original(ax0)
+    draw_transformed(ax)
+    ax0.set_xlim(-5, 5)
+    ax0.set_ylim(-5, 5)
     ax.set_xlim(-5, 5)
     ax.set_ylim(-5, 5)
     fig.canvas.draw_idle()
