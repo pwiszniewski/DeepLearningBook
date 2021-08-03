@@ -6,7 +6,7 @@ import torch
 
 from sklearn.datasets import make_blobs
 
-X, y = make_blobs(n_samples=100, centers=2, n_features=2, random_state=1)
+X, y = make_blobs(n_samples=1000, centers=2, n_features=2, random_state=1)
 
 
 # plot examples

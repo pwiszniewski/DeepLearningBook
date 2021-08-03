@@ -22,12 +22,39 @@ def get_gauss(x, mi, var):
 def get_kl_divergence(p, q):
     return np.sum(p * np.log2(p/q))
 
-def redraw(ax):
-    ax.clear()
+# def redraw(ax):
+#     ax.clear()
+#     yp = .5*get_gauss(x, mip, stdp**2) + .5*get_gauss(x, mip2, stdp2**2)
+#     ax.scatter(x, yp, s=1)
+#     yq = get_gauss(x, miq, stdq**2)
+#     ax.scatter(x, yq, s=1)
+#     kl_pq = get_kl_divergence(yp, yq)
+#     if kl_pq < 1:
+#         kl_pqstr = f'{kl_pq:.1f}'
+#     else:
+#         kl_pqstr = f'{kl_pq:.0f}'
+#     kl_qp = get_kl_divergence(yq, yp)
+#     if kl_qp < 1:
+#         kl_qpstr = f'{kl_qp:.1f}'
+#     else:
+#         kl_qpstr = f'{kl_qp:.0f}'
+#     ax.annotate(f'kl_pq: {kl_pqstr}, kl_qp: {kl_qpstr}', xy=(0, 1), xycoords="axes fraction",
+#             va="top", ha="left",
+#             bbox=dict(boxstyle="round", fc="w"), fontsize=20)
+#     # ax.set_xlim(-5, 5)
+#     ax.set_ylim(0, 1)
+#     ax.legend(['p(x)', 'q*(x)'])
+#     fig.canvas.draw_idle()
+
+
+def redraw(scp, scq, ann):
+    # ax.clear()
     yp = .5*get_gauss(x, mip, stdp**2) + .5*get_gauss(x, mip2, stdp2**2)
-    ax.scatter(x, yp, s=1)
+    scp.set_offsets(np.c_[x,yp])
+    # ax.scatter(x, yp, s=1)
     yq = get_gauss(x, miq, stdq**2)
-    ax.scatter(x, yq, s=1)
+    scq.set_offsets(np.c_[x,yq])
+    # ax.scatter(x, yq, s=1)
     kl_pq = get_kl_divergence(yp, yq)
     if kl_pq < 1:
         kl_pqstr = f'{kl_pq:.1f}'
@@ -38,12 +65,13 @@ def redraw(ax):
         kl_qpstr = f'{kl_qp:.1f}'
     else:
         kl_qpstr = f'{kl_qp:.0f}'
-    ax.annotate(f'kl_pq: {kl_pqstr}, kl_qp: {kl_qpstr}', xy=(0, 1), xycoords="axes fraction",
-            va="top", ha="left",
-            bbox=dict(boxstyle="round", fc="w"), fontsize=20)
+    ann.set_text(f'kl_pq: {kl_pqstr}, kl_qp: {kl_qpstr}')
+    # ax.annotate(f'kl_pq: {kl_pqstr}, kl_qp: {kl_qpstr}', xy=(0, 1), xycoords="axes fraction",
+    #         va="top", ha="left",
+    #         bbox=dict(boxstyle="round", fc="w"), fontsize=20)
     # ax.set_xlim(-5, 5)
-    ax.set_ylim(0, 1)
-    ax.legend(['p(x)', 'q*(x)'])
+    # ax.set_ylim(0, 1)
+    # ax.legend(['p(x)', 'q*(x)'])
     fig.canvas.draw_idle()
 
 
@@ -55,9 +83,9 @@ plt.subplots_adjust(left=0.2, bottom=0.25)
 
 
 yp = .5*get_gauss(x, mip, stdp**2) + .5*get_gauss(x, mip2, stdp2**2)
-ax.scatter(x, yp, s=1)
+scp = ax.scatter(x, yp, s=1)
 yq = get_gauss(x, miq, stdq**2)
-ax.scatter(x, yq, s=1)
+scq = ax.scatter(x, yq, s=1)
 kl_pq = get_kl_divergence(yp, yq)
 if kl_pq < 1:
     kl_pqstr = f'{kl_pq:.1f}'
@@ -68,7 +96,7 @@ if kl_qp < 1:
     kl_qpstr = f'{kl_qp:.1f}'
 else:
     kl_qpstr = f'{kl_qp:.0f}'
-ax.annotate(f'kl_pq: {kl_pqstr}, kl_qp: {kl_qpstr}', xy=(0, 1), xycoords="axes fraction",
+ann = ax.annotate(f'kl_pq: {kl_pqstr}, kl_qp: {kl_qpstr}', xy=(0, 1), xycoords="axes fraction",
         va="top", ha="left",
         bbox=dict(boxstyle="round", fc="w"), fontsize=20)
 # ax.set_xlim(-5, 5)
@@ -87,7 +115,7 @@ axf = plt.axes([0.6, 0.1, 0.3, 0.03], facecolor=axcolor)
 sa = Slider(axa, 'mip1', -10, 10, valinit=mip, valstep=.1)
 sb = Slider(axb, 'stdp1', 0, 10, valinit=stdp, valstep=.1)
 sc = Slider(axc, 'mip2', -10, 10, valinit=mip2, valstep=.1)
-sd = Slider(axd, 'stdp2', -10, 10, valinit=stdp2, valstep=.1)
+sd = Slider(axd, 'stdp2', 0, 10, valinit=stdp2, valstep=.1)
 se = Slider(axe, 'miq', -10, 10, valinit=miq, valstep=.1)
 sf = Slider(axf, 'stdq', 0, 10, valinit=stdp2, valstep=.1)
 
@@ -95,32 +123,32 @@ sf = Slider(axf, 'stdq', 0, 10, valinit=stdp2, valstep=.1)
 def update_a(val):
     global mip
     mip = val
-    redraw(ax)
+    redraw(scp, scq, ann)
 
 def update_b(val):
     global stdp
     stdp = val
-    redraw(ax) 
+    redraw(scp, scq, ann)
 
 def update_c(val):
     global mip2
     mip2 = val
-    redraw(ax)
+    redraw(scp, scq, ann)
 
 def update_d(val):
     global stdp2
     stdp2 = val
-    redraw(ax) 
+    redraw(scp, scq, ann)
 
 def update_e(val):
     global miq
     miq = val
-    redraw(ax)
+    redraw(scp, scq, ann)
 
 def update_f(val):
     global stdq
     stdq = val
-    redraw(ax) 
+    redraw(scp, scq, ann)
 
 
 sa.on_changed(update_a)

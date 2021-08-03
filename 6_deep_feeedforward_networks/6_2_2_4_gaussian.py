@@ -21,8 +21,6 @@ y = np.array([0, 1, 1, 0])
 
 x_grid = np.arange(-3.0,3.0,0.1)
 y_grid = np.arange(-3.0,3.0,0.1)
-X_grid,Y_grid = np.meshgrid(x_grid, y_grid) # grid of point  
-XX = np.concatenate([X_grid.reshape(1,-1), Y_grid.reshape(1,-1)], axis=0).T
 
 def ReLU(x):
     return np.maximum(x, 0)
@@ -30,37 +28,56 @@ def ReLU(x):
 def sigmoid(x):
   return 1 / (1 + np.exp(-x))
 
-def calc_tranformation():
+
+def draw_original(ax):
     global a, b, c, d
     W = np.array([[a, b], 
               [c, d]])
     C = np.array([e, f])  
-    XX_trans = XX @ W + C
+
+    # plot decision boundary
+    X_grid,Y_grid = np.meshgrid(x_grid, y_grid) # grid of point    
+    XX = np.concatenate([X_grid.reshape(1,-1), Y_grid.reshape(1,-1)], axis=0).T
+    X_trans = XX @ W + C
     if activation1 == 'ReLU':
-        XX_trans = ReLU(XX_trans)
+        X_trans = ReLU(X_trans)
     w_out = np.array([g, h]).reshape(2, 1)
-    out = XX_trans @ w_out
+    out = X_trans @ w_out
     if activation2 == 'sigmoid':
         out = sigmoid(out)
+    colors = out > .5 if out_type == 'binary' else out
+    ax.scatter(XX[:,0], XX[:,1], c=colors, cmap=plt.cm.Reds)
+
     X_trans = X @ W + C
     if activation1 == 'ReLU':
         X_trans = ReLU(X_trans)
-    return out, X_trans, XX_trans
+    ax.scatter(X[:,0], X[:,1], c=y)
 
-def draw_original(sc_xor, sc_bound, out):
+def draw_transformed(ax):
+    global a, b, c, d
+    W = np.array([[a, b], 
+              [c, d]])
+    C = np.array([e, f])  
+
     # plot decision boundary
+    X_grid,Y_grid = np.meshgrid(x_grid, y_grid) # grid of point    
+    XX = np.concatenate([X_grid.reshape(1,-1), Y_grid.reshape(1,-1)], axis=0).T
+    # print(np.concatenate([np.ravel(X_grid), np.ravel(Y_grid)]))
+    X_trans = XX @ W + C
+    if activation1 == 'ReLU':
+        X_trans = ReLU(X_trans)
+    w_out = np.array([g, h]).reshape(2, 1)
+    out = X_trans @ w_out
+    if activation2 == 'sigmoid':
+        out = sigmoid(out)
     colors = out > .5 if out_type == 'binary' else out
-    sc_bound.set_offsets(np.c_[XX[:,0], XX[:,1]])
-    sc_bound.set_array(colors.flatten())
-    sc_xor.set_offsets(np.c_[X[:,0], X[:,1]])
-    fig.canvas.draw_idle()
+    ax.scatter(X_trans[:,0], X_trans[:,1], c=colors, cmap=plt.cm.Reds)
 
-def draw_transformed(sc_xor, sc_bound, out, XX_trans, X_trans):
-    colors = out > .5 if out_type == 'binary' else out
-    sc_bound.set_offsets(np.c_[XX_trans[:,0], XX_trans[:,1]])
-    sc_bound.set_array(colors.flatten())
-    sc_xor.set_offsets(np.c_[X_trans[:,0], X_trans[:,1]])
-    fig.canvas.draw_idle()
+    X_trans = X @ W + C
+    if activation1 == 'ReLU':
+        X_trans = ReLU(X_trans)
+    ax.scatter(X_trans[:,0], X_trans[:,1], c=y)
+    #plt.contourf(x,y,z)
     
 
 
@@ -70,16 +87,14 @@ plt.subplots_adjust(left=0.2, bottom=0.25)
 ax0 = ax[0]
 ax = ax[1]
 
-sc_bound = ax.scatter(X[:,0], X[:,1], c=y, cmap=plt.cm.Reds)
-sc_xor = ax.scatter(X[:,0], X[:,1], c=y)
-# ax.plot(X[:,0], X[:,1], c=y)
+ax.scatter(X[:,0], X[:,1], c=y)
+ax.plot(X[:,0], X[:,1], c=y)
 ax.set_xlim(-5, 5)
 ax.set_ylim(-5, 5)
 ax.set_aspect(1)
 
-sc0_bound = ax0.scatter(X[:,0], X[:,1], c=y, cmap=plt.cm.Reds)
-sc0_xor = ax0.scatter(X[:,0], X[:,1], c=y)
-# ax0.plot(X[:,0], X[:,1], c=y)
+ax0.scatter(X[:,0], X[:,1], c=y)
+ax0.plot(X[:,0], X[:,1], c=y)
 ax0.set_xlim(-5, 5)
 ax0.set_ylim(-5, 5)
 ax0.set_aspect(1)
@@ -116,80 +131,145 @@ sh = Slider(axh, 'h', -10, 10, valinit=h, valstep=.1)
 def update_a(val):
     global a
     a = val
-    out, X_trans, XX_trans = calc_tranformation()
-    draw_original(sc0_xor, sc0_bound, out)
-    draw_transformed(sc_xor, sc_bound, out, XX_trans, X_trans)
-
+    ax0.clear()
+    ax.clear()    
+    draw_original(ax0)
+    draw_transformed(ax)
+    ax0.set_xlim(-5, 5)
+    ax0.set_ylim(-5, 5)
+    ax.set_xlim(-5, 5)
+    ax.set_ylim(-5, 5)
+    fig.canvas.draw_idle()
 
 def update_b(val):
     global b
     b = val
-    out, X_trans, XX_trans = calc_tranformation()
-    draw_original(sc0_xor, sc0_bound, out)
-    draw_transformed(sc_xor, sc_bound, out, XX_trans, X_trans)
+    ax0.clear()
+    ax.clear()    
+    draw_original(ax0)
+    draw_transformed(ax)
+    ax0.set_xlim(-5, 5)
+    ax0.set_ylim(-5, 5)
+    ax.set_xlim(-5, 5)
+    ax.set_ylim(-5, 5)
+    fig.canvas.draw_idle()
 
 def update_c(val):
     global c
     c = val
-    out, X_trans, XX_trans = calc_tranformation()
-    draw_original(sc0_xor, sc0_bound, out)
-    draw_transformed(sc_xor, sc_bound, out, XX_trans, X_trans)
+    ax0.clear()
+    ax.clear()    
+    draw_original(ax0)
+    draw_transformed(ax)
+    ax0.set_xlim(-5, 5)
+    ax0.set_ylim(-5, 5)
+    ax.set_xlim(-5, 5)
+    ax.set_ylim(-5, 5)
+    fig.canvas.draw_idle()
 
 def update_d(val):
     global d
     d = val
-    out, X_trans, XX_trans = calc_tranformation()
-    draw_original(sc0_xor, sc0_bound, out)
-    draw_transformed(sc_xor, sc_bound, out, XX_trans, X_trans)
+    ax0.clear()
+    ax.clear()    
+    draw_original(ax0)
+    draw_transformed(ax)
+    ax0.set_xlim(-5, 5)
+    ax0.set_ylim(-5, 5)
+    ax.set_xlim(-5, 5)
+    ax.set_ylim(-5, 5)
+    fig.canvas.draw_idle()
 
 def update_e(val):
     global e
     e = val
-    out, X_trans, XX_trans = calc_tranformation()
-    draw_original(sc0_xor, sc0_bound, out)
-    draw_transformed(sc_xor, sc_bound, out, XX_trans, X_trans)
+    ax0.clear()
+    ax.clear()    
+    draw_original(ax0)
+    draw_transformed(ax)
+    ax0.set_xlim(-5, 5)
+    ax0.set_ylim(-5, 5)
+    ax.set_xlim(-5, 5)
+    ax.set_ylim(-5, 5)
+    fig.canvas.draw_idle()
 
 def update_f(val):
     global f
     f = val
-    out, X_trans, XX_trans = calc_tranformation()
-    draw_original(sc0_xor, sc0_bound, out)
-    draw_transformed(sc_xor, sc_bound, out, XX_trans, X_trans)
+    ax0.clear()
+    ax.clear()    
+    draw_original(ax0)
+    draw_transformed(ax)
+    ax0.set_xlim(-5, 5)
+    ax0.set_ylim(-5, 5)
+    ax.set_xlim(-5, 5)
+    ax.set_ylim(-5, 5)
+    fig.canvas.draw_idle()
 
 def update_g(val):
     global g
     g = val
-    out, X_trans, XX_trans = calc_tranformation()
-    draw_original(sc0_xor, sc0_bound, out)
-    draw_transformed(sc_xor, sc_bound, out, XX_trans, X_trans)
+    ax0.clear()
+    ax.clear()    
+    draw_original(ax0)
+    draw_transformed(ax)
+    ax0.set_xlim(-5, 5)
+    ax0.set_ylim(-5, 5)
+    ax.set_xlim(-5, 5)
+    ax.set_ylim(-5, 5)
+    fig.canvas.draw_idle()
 
 def update_h(val):
     global h
     h = val
-    out, X_trans, XX_trans = calc_tranformation()
-    draw_original(sc0_xor, sc0_bound, out)
-    draw_transformed(sc_xor, sc_bound, out, XX_trans, X_trans)
+    ax0.clear()
+    ax.clear()    
+    draw_original(ax0)
+    draw_transformed(ax)
+    ax0.set_xlim(-5, 5)
+    ax0.set_ylim(-5, 5)
+    ax.set_xlim(-5, 5)
+    ax.set_ylim(-5, 5)
+    fig.canvas.draw_idle()
 
 def switch_activation1(label):
     global activation1
     activation1 = label
-    out, X_trans, XX_trans = calc_tranformation()
-    draw_original(sc0_xor, sc0_bound, out)
-    draw_transformed(sc_xor, sc_bound, out, XX_trans, X_trans)
+    ax0.clear()
+    ax.clear()    
+    draw_original(ax0)
+    draw_transformed(ax)
+    ax0.set_xlim(-5, 5)
+    ax0.set_ylim(-5, 5)
+    ax.set_xlim(-5, 5)
+    ax.set_ylim(-5, 5)
+    fig.canvas.draw_idle()
 
 def switch_activation2(label):
     global activation2
     activation2 = label
-    out, X_trans, XX_trans = calc_tranformation()
-    draw_original(sc0_xor, sc0_bound, out)
-    draw_transformed(sc_xor, sc_bound, out, XX_trans, X_trans)
+    ax0.clear()
+    ax.clear()    
+    draw_original(ax0)
+    draw_transformed(ax)
+    ax0.set_xlim(-5, 5)
+    ax0.set_ylim(-5, 5)
+    ax.set_xlim(-5, 5)
+    ax.set_ylim(-5, 5)
+    fig.canvas.draw_idle()
 
 def switch_out_type(label):
     global out_type
     out_type = label
-    out, X_trans, XX_trans = calc_tranformation()
-    draw_original(sc0_xor, sc0_bound, out)
-    draw_transformed(sc_xor, sc_bound, out, XX_trans, X_trans)
+    ax0.clear()
+    ax.clear()    
+    draw_original(ax0)
+    draw_transformed(ax)
+    ax0.set_xlim(-5, 5)
+    ax0.set_ylim(-5, 5)
+    ax.set_xlim(-5, 5)
+    ax.set_ylim(-5, 5)
+    fig.canvas.draw_idle()
 
 
 sa.on_changed(update_a)
