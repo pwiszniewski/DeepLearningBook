@@ -12,6 +12,7 @@ mip, stdp = -4, 1
 mip2, stdp2 = 4, 1
 miq, stdq = 0, 1
 
+is_double = True
 
 xlim = -10, 10
 x = np.linspace(*xlim, num=500)
@@ -49,7 +50,10 @@ def get_kl_divergence(p, q):
 
 def redraw(scp, scq, ann):
     # ax.clear()
-    yp = .5*get_gauss(x, mip, stdp**2) + .5*get_gauss(x, mip2, stdp2**2)
+    if is_double:
+        yp = .5*get_gauss(x, mip, stdp**2) + .5*get_gauss(x, mip2, stdp2**2)
+    else:
+        yp = get_gauss(x, mip, stdp**2)
     scp.set_offsets(np.c_[x,yp])
     # ax.scatter(x, yp, s=1)
     yq = get_gauss(x, miq, stdq**2)
@@ -101,7 +105,7 @@ ann = ax.annotate(f'kl_pq: {kl_pqstr}, kl_qp: {kl_qpstr}', xy=(0, 1), xycoords="
         bbox=dict(boxstyle="round", fc="w"), fontsize=20)
 # ax.set_xlim(-5, 5)
 ax.set_ylim(0, 1)
-ax.legend(['p(x)', 'q*(x)'])
+ax.legend(['p(x)', 'q(x)'])
 
 
 axcolor = 'lightgoldenrodyellow'
@@ -112,12 +116,24 @@ axd = plt.axes([0.25, 0.0, 0.3, 0.03], facecolor=axcolor)
 axe = plt.axes([0.6, 0.15, 0.3, 0.03], facecolor=axcolor)
 axf = plt.axes([0.6, 0.1, 0.3, 0.03], facecolor=axcolor)
 
+
 sa = Slider(axa, 'mip1', -10, 10, valinit=mip, valstep=.1)
 sb = Slider(axb, 'stdp1', 0, 10, valinit=stdp, valstep=.1)
 sc = Slider(axc, 'mip2', -10, 10, valinit=mip2, valstep=.1)
 sd = Slider(axd, 'stdp2', 0, 10, valinit=stdp2, valstep=.1)
 se = Slider(axe, 'miq', -10, 10, valinit=miq, valstep=.1)
 sf = Slider(axf, 'stdq', 0, 10, valinit=stdp2, valstep=.1)
+
+
+rax = plt.axes([0.05, 0.7, 0.1, 0.15], facecolor=axcolor)
+radio = RadioButtons(rax, ('single', 'double'),active=1)
+
+def radio_fun(label):
+    global is_double
+    is_double = True if label == 'double' else False
+    redraw(scp, scq, ann)
+
+radio.on_clicked(radio_fun)
 
 
 def update_a(val):
