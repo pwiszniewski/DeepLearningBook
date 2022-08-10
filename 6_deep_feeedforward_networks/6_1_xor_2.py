@@ -1,6 +1,7 @@
 import matplotlib
 matplotlib.use('Qt5Agg')
-# solution: W = [[1 1] [1 1]] c = [0 −1]
+# solution: W = [[1 1] [1 1]] c = [0 −1] w = [1 -2] b = 0 (always in this case)
+# another solution: W = [[1 -1] [-1 1]] c = [0 0] w = [1 1] b = 0 (always in this case)
 
 import matplotlib.pyplot as plt
 import numpy as np

@@ -3,18 +3,14 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, Button
 
 
-def f(t, amplitude, frequency):
-    return amplitude * np.sin(2 * np.pi * frequency * t)
 
 x = [0, 1, 2]
 
 init_amplitude = 1
 
 fig, ax = plt.subplots()
-# line, = plt.plot(t, f(t, init_amplitude, init_frequency), lw=2)
 ax.bar(x, [1/3, 1/3, 1/3])
 ax.set_ylim(0, 1)
-ax.set_xlabel('Time [s]')
 
 plt.subplots_adjust(left=0.25, bottom=0.25)
 
